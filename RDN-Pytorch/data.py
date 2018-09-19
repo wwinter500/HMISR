@@ -13,7 +13,10 @@ def RGB_np2Tensor(imgIn, imgTar):
     return imgIn, imgTar
 
 def GLBMP_np2Tensor(imgIn, imgTar):
-    
+    ts = (2, 0, 1)
+    imgIn = torch.Tensor(imgIn.transpose(ts).astype(float)).mul_(1.0)
+    imgTar = torch.Tensor(imgTar.transpose(ts).astype(float)).mul_(1.0)  
+    return imgIn, imgTar
     
 def augment(imgIn, imgTar):
     if random.random() < 0.3:
@@ -41,8 +44,8 @@ class HMIGLBMP(data.Dataset):
         self.args = args
         self.scale = args.scale
         apath = args.dataDir
-        dirHR = 'HR'
-        dirLR = 'LR'
+        dirHR = 'train_gt'
+        dirLR = 'train'
         self.dirIn = os.path.join(apath, dirLR)
         self.dirTar = os.path.join(apath, dirHR)
         self.fileList= os.listdir(self.dirHR)

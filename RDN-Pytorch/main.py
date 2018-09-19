@@ -43,7 +43,6 @@ parser.add_argument('--lossType', default='L1', help='output SR video')
 
 parser.add_argument('--scale', type=int, default= 1, help='scale output size /input size')
 
-
 args = parser.parse_args()
 
 def weights_init_kaiming(m):
@@ -52,10 +51,9 @@ def weights_init_kaiming(m):
         init.kaiming_normal(m.weight.data)
 
 def get_dataset(args):
-    data_train = HMIGLBMP(args);
+   data_train = HMIGLBMP(args);
 	#data_train = DIV2K(args)
-	dataloader = torch.utils.data.DataLoader(data_train, batch_size=args.batchSize,
-		drop_last=True, shuffle=True, num_workers=int(args.nThreads), pin_memory=False)
+	dataloader = torch.utils.data.DataLoader(data_train, batch_size=args.batchSize,drop_last=True, shuffle=True, num_workers=int(args.nThreads), pin_memory=False)
 	return dataloader
 
 def set_loss(args):
