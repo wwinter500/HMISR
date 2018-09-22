@@ -6,12 +6,6 @@ import cv2
 import torch
 import torch.utils.data as data
 
-def RGB_np2Tensor(imgIn, imgTar):
-    ts = (2, 0, 1)
-    imgIn = torch.Tensor(imgIn.transpose(ts).astype(float)).mul_(1.0)
-    imgTar = torch.Tensor(imgTar.transpose(ts).astype(float)).mul_(1.0)  
-    return imgIn, imgTar
-
 def GLBMP_np2Tensor(imgIn, imgTar):
     ts = (2, 0, 1)
     imgIn = torch.Tensor(imgIn.transpose(ts).astype(float)).mul_(1.0)
@@ -29,6 +23,7 @@ def augment(imgIn, imgTar):
 
 def getPatch(imgIn, imgTar, args, scale):
     (ih, iw, c) = imgIn.shape
+    #print(imgIn.shape)
     (th, tw) = (scale * ih, scale * iw)
     tp = args.patchSize
     ip = tp // scale
@@ -43,15 +38,18 @@ class HMIGLBMP(data.Dataset):
     def __init__(self, args):
         self.args = args
         self.scale = args.scale
-        apath = args.dataDir
+        apath = args.dataDir        
         dirHR = 'train_gt'
         dirLR = 'train'
         self.dirIn = os.path.join(apath, dirLR)
+        #print("traindata:" + self.dirIn)
         self.dirTar = os.path.join(apath, dirHR)
-        self.fileList= os.listdir(self.dirHR)
-        self.nTrain = len(self.fileList)
+        self.fileList= os.listdir(self.dirIn)
+        #print(self.dirIn)
+        self.nTrain = len(self.fileList) - 1
+        #print(self.nTrain)
         
-    def __getitem__(self, idx):
+    def __getitem__(self, idx):        
         scale = self.scale
         nameIn, nameTar = self.getFileName(idx)
         imgIn = cv2.imread(nameIn)
@@ -59,7 +57,7 @@ class HMIGLBMP(data.Dataset):
         if self.args.need_patch:
             imgIn, imgTar = getPatch(imgIn, imgTar, self.args, scale)
         imgIn, imgTar = augment(imgIn, imgTar)
-        return RGB_np2Tensor(imgIn, imgTar)
+        return GLBMP_np2Tensor(imgIn, imgTar)
 
     def __len__(self):
         return self.nTrain
@@ -67,6 +65,6 @@ class HMIGLBMP(data.Dataset):
     def getFileName(self, idx):
         name = self.fileList[idx]
         nameTar = os.path.join(self.dirTar, name)
-        name = name[0:-4] + 'x3' + '.png'
+        name = name[0:-4] + '.bmp'
         nameIn = os.path.join(self.dirIn, name)
         return nameIn, nameTar

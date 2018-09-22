@@ -1,7 +1,3 @@
-# ------------------------------
-# Residual Dense Network
-# ------------------------------
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F 
@@ -13,7 +9,7 @@ from torch.nn import init
 import torch.optim as optim
 
 from model import model
-from data import DIV2K
+from data import HMIGLBMP
 from utils import *
 
 parser = argparse.ArgumentParser(description='Semantic aware super-resolution')
@@ -43,6 +39,7 @@ parser.add_argument('--lossType', default='L1', help='output SR video')
 
 parser.add_argument('--scale', type=int, default= 1, help='scale output size /input size')
 
+
 args = parser.parse_args()
 
 def weights_init_kaiming(m):
@@ -50,19 +47,18 @@ def weights_init_kaiming(m):
     if classname.find('Conv2d') != -1:
         init.kaiming_normal(m.weight.data)
 
-def get_dataset(args):
-   data_train = HMIGLBMP(args);
-	#data_train = DIV2K(args)
-	dataloader = torch.utils.data.DataLoader(data_train, batch_size=args.batchSize,drop_last=True, shuffle=True, num_workers=int(args.nThreads), pin_memory=False)
-	return dataloader
+def get_dataset(args):   
+    data_train = HMIGLBMP(args);
+    #data_train = DIV2K(args)
+    dataloader = torch.utils.data.DataLoader(data_train,batch_size=args.batchSize,drop_last=True,shuffle=True,num_workers=int(args.nThreads),pin_memory=False)
+    return dataloader
 
 def set_loss(args):
-	lossType = args.lossType
-	if lossType == 'MSE':
-		lossfunction = nn.MSELoss()
-	elif lossType == 'L1':
-		lossfunction = nn.L1Loss()
-	return lossfunction
+    lossType = args.lossType
+    lossfunction = nn.L1Loss()
+    if lossType == 'MSE':
+        lossfunction = nn.MSELoss()
+    return lossfunction
 
 def set_lr(args, epoch, optimizer):
     lrDecay = args.lrDecay
